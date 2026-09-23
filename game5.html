@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Counting Adventure: Berhitung Seru Anak TK!</title>
-    <!-- Memuat Library Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * {
@@ -34,10 +33,38 @@
             position: relative;
         }
 
+        /* Tombol Kembali ke Beranda */
+        .home-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background-color: #ff7675;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(255, 118, 117, 0.4);
+            transition: transform 0.2s, background 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .home-btn:hover {
+            background-color: #d63031;
+            transform: scale(1.05);
+        }
+
         h1 {
             color: #0984e3;
             font-size: 26px;
             margin-bottom: 5px;
+            margin-top: 15px;
             text-shadow: 2px 2px 0px #ffeaa7;
         }
 
@@ -47,7 +74,6 @@
             margin-bottom: 15px;
         }
 
-        /* Overlay Tombol Play Awal */
         #start-overlay {
             position: absolute;
             top: 0;
@@ -88,7 +114,6 @@
             transform: scale(1.05);
         }
 
-        /* Area Pertanyaan / Soal */
         .question-box {
             background: #f1f2f6;
             border: 3px dashed #747d8c;
@@ -114,7 +139,6 @@
             100% { transform: scale(1); }
         }
 
-        /* Pilihan Angka / Gambar Jari (Opsi Jawaban) */
         .options-container {
             display: flex;
             justify-content: center;
@@ -172,7 +196,6 @@
             75% { transform: translateX(6px); }
         }
 
-        /* Status & Level Info */
         .game-info {
             display: flex;
             justify-content: space-between;
@@ -183,7 +206,6 @@
             padding: 0 10px;
         }
 
-        /* Feedback Pesan Benar/Salah di Soal */
         #feedback-text {
             font-size: 20px;
             font-weight: bold;
@@ -191,7 +213,6 @@
             margin-bottom: 10px;
         }
 
-        /* Tombol Main Lagi / Lanjut */
         #next-btn {
             background-color: #0984e3;
             color: white;
@@ -214,12 +235,13 @@
 </head>
 <body>
 
-    <!-- Musik Latar Terbaru & Musik Selesai -->
     <audio id="bg-music" src="https://files.catbox.moe/a742my.mp3" preload="auto" loop></audio>
     <audio id="win-music" src="https://files.catbox.moe/wsohm6.mp3" preload="auto"></audio>
 
     <div class="game-container">
-        <!-- Overlay Tombol Play Awal -->
+        <!-- Tombol Kembali ke Beranda -->
+        <a href="index.html" class="home-btn">🏠 Beranda</a>
+
         <div id="start-overlay">
             <h2>🎒 Counting Adventure 🔢</h2>
             <button id="play-btn" onclick="startGame()">Mulai Main 🚀</button>
@@ -235,21 +257,14 @@
 
         <div id="feedback-text"></div>
 
-        <!-- Kotak Tempat Objek yang Dihitung -->
-        <div class="question-box" id="question-box">
-            <!-- Icon benda akan di-generate di sini -->
-        </div>
+        <div class="question-box" id="question-box"></div>
 
-        <!-- Pilihan Gambar Jari / Angka -->
-        <div class="options-container" id="options-container">
-            <!-- Tombol pilihan jari tangan -->
-        </div>
+        <div class="options-container" id="options-container"></div>
 
         <button id="next-btn" onclick="nextQuestion()">Lanjut Soal Berikutnya ➡️</button>
     </div>
 
     <script>
-        // Data level permainan (Total 5 soal hitung benda)
         const levels = [
             { emoji: '🍎', name: 'Apel', count: 3 },
             { emoji: '🐱', name: 'Kucing', count: 5 },
@@ -258,7 +273,6 @@
             { emoji: '🎈', name: 'Balon', count: 6 }
         ];
 
-        // Kamus Tampilan Gambar Jari untuk masing-masing angka
         const optionDetails = {
             2: '<img src="https://i.ibb.co.com/svqqSdJr/2.jpg" alt="Jari 2">',
             3: '<img src="https://i.ibb.co.com/QvvKHNQs/3.jpg" alt="Jari 3">',
@@ -307,7 +321,6 @@
 
             const currentObj = levels[currentLevelIndex];
 
-            // Render objek sejumlah count
             for (let i = 0; i < currentObj.count; i++) {
                 const span = document.createElement('span');
                 span.classList.add('item-icon');
@@ -315,18 +328,15 @@
                 questionBox.appendChild(span);
             }
 
-            // Buat pilihan angka acak (pastikan jawaban benar masuk ke dalam opsi)
             let choices = [currentObj.count];
             while (choices.length < 4) {
-                let randomNum = Math.floor(Math.random() * 5) + 2; // angka 2 sampai 6
+                let randomNum = Math.floor(Math.random() * 5) + 2;
                 if (!choices.includes(randomNum)) {
                     choices.push(randomNum);
                 }
             }
-            // Acak urutan tombol pilihan
             choices.sort(() => Math.random() - 0.5);
 
-            // Render tombol pilihan opsi (gambar jari tangan)
             choices.forEach(num => {
                 const btn = document.createElement('button');
                 btn.classList.add('option-btn');
@@ -345,8 +355,6 @@
         function checkAnswer(selectedNum, correctNum, btnElement) {
             if (!canAnswer) return;
             canAnswer = false;
-
-            const allButtons = optionsContainer.querySelectorAll('.option-btn');
 
             if (selectedNum === correctNum) {
                 btnElement.classList.add('correct');
@@ -397,7 +405,6 @@
             };
             nextBtn.style.display = 'inline-block';
 
-            // Matikan musik latar, nyalakan musik menang & efek confetti
             bgMusic.pause();
             winMusic.currentTime = 0;
             winMusic.play().catch(() => {});
