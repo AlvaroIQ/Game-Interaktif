@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menyusun Susunan Aktivitas</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: #e0f7fa;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff6f00;
+        }
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: #ffe0b2;
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+        .activity-title {
+            font-size: 22px;
+            color: #00796b;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .drop-zones {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .drop-zone {
+            width: 30%;
+            min-height: 80px;
+            border: 3px dashed #b2dfdb;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f8e9;
+            padding: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .drop-zone.drag-over {
+            background: #c8e6c9;
+            border-color: #4caf50;
+        }
+        .choices-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .choice-item {
+            background: #80deea;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: grab;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            user-select: none;
+        }
+        .choice-item:active {
+            cursor: grabbing;
+        }
+        button {
+            background: #ffca28;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #ffc107;
+            transform: scale(1.05);
+        }
+        .hidden {
+            display: none !important;
+        }
+        #result-modal {
+            margin-top: 20px;
+        }
+        .welcome-screen {
+            padding: 40px 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Audio Elemen -->
+    <audio id="bg-audio" loop preload="auto" src="https://files.catbox.moe/1wbd4k.mp3"></audio>
+    <audio id="applause-audio" preload="auto" src="https://files.catbox.moe/wsohm6.mp3"></audio>
+
+    <div class="container">
+        <h2>🧩 Game Urutan Kegiatan 🧩</h2>
+
+        <!-- Tampilan Awal (Tombol Start) -->
+        <div id="welcome-screen" class="welcome-screen">
+            <h1>⭐ Selamat Datang! ⭐</h1>
+            <p>Ayo belajar menyusun urutan kegiatan dengan seru dan menyenangkan.</p>
+            <button onclick="mulaiPermainan()">Mulai Game 🚀</button>
+        </div>
+
+        <!-- Area Game Utama -->
+        <div id="main-game-area" class="hidden">
+            <h1>⭐ Susun Urutan Kegiatan ⭐</h1>
+            <p>Seret langkah kegiatan ke kotak nomor 1, 2, dan 3 sesuai urutan yang benar!</p>
+
+            <div class="info-bar">
+                <div>Soal ke: <span id="current-q">1</span> / <span id="total-q">3</span></div>
+                <div>Skor: <span id="score">0</span></div>
+            </div>
+
+            <div id="game-area">
+                <div class="activity-title" id="activity-name">Aktivitas: Tidur</div>
+                
+                <div class="drop-zones">
+                    <div class="drop-zone" data-index="0"><span>Ke-1</span></div>
+                    <div class="drop-zone" data-index="1"><span>Ke-2</span></div>
+                    <div class="drop-zone" data-index="2"><span>Ke-3</span></div>
+                </div>
+
+                <p>Pilihan Langkah Kegiatan:</p>
+                <div class="choices-container" id="choices"></div>
+
+                <button id="submit-btn" onclick="cekJawaban()">Periksa Jawaban</button>
+            </div>
+
+            <div id="result-modal" class="hidden">
+                <h2 id="result-message"></h2>
+                <p>Skor Akhir Kamu: <span id="final-score">0</span></p>
+                <button onclick="mainLagi()">Main Lagi 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                activity: "Tidur",
+                steps: ["Mengantuk", "Berdoa", "Tidur di Kasur"],
+                correct: ["Mengantuk", "Berdoa", "Tidur di Kasur"]
+            },
+            {
+                activity: "Mandi",
+                steps: ["Menyiapkan Handuk", "Memakai Sabun", "Membilas dengan Air"],
+                correct: ["Menyiapkan Handuk", "Memakai Sabun", "Membilas dengan Air"]
+            },
+            {
+                activity: "Makan",
+                steps: ["Mencuci Tangan", "Berdoa sebelum makan", "Makan dengan lahap"],
+                correct: ["Mencuci Tangan", "Berdoa sebelum makan", "Makan dengan lahap"]
+            }
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let userAnswers = [null, null, null];
+
+        const welcomeScreen = document.getElementById("welcome-screen");
+        const mainGameArea = document.getElementById("main-game-area");
+        const currentQEl = document.getElementById("current-q");
+        const totalQEl = document.getElementById("total-q");
+        const scoreEl = document.getElementById("score");
+        const activityNameEl = document.getElementById("activity-name");
+        const choicesContainer = document.getElementById("choices");
+        const dropZones = document.querySelectorAll(".drop-zone");
+        const gameArea = document.getElementById("game-area");
+        const resultModal = document.getElementById("result-modal");
+        const resultMessage = document.getElementById("result-message");
+        const finalScoreEl = document.getElementById("final-score");
+        const submitBtn = document.getElementById("submit-btn");
+
+        const bgAudio = document.getElementById("bg-audio");
+        const applauseAudio = document.getElementById("applause-audio");
+
+        totalQEl.textContent = questions.length;
+
+        function mulaiPermainan() {
+            // Sembunyikan layar awal, tampilkan area game
+            welcomeScreen.classList.add("hidden");
+            mainGameArea.classList.remove("hidden");
+
+            // Putar musik background
+            bgAudio.currentTime = 0;
+            bgAudio.play().catch(e => console.log("Audio autoplay diblokir browser:", e));
+
+            initGame();
+        }
+
+        function initGame() {
+            currentIndex = 0;
+            score = 0;
+            scoreEl.textContent = score;
+            resultModal.classList.add("hidden");
+            gameArea.classList.remove("hidden");
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            userAnswers = [null, null, null];
+            submitBtn.textContent = "Periksa Jawaban";
+            submitBtn.onclick = cekJawaban;
+
+            const q = questions[currentIndex];
+            currentQEl.textContent = currentIndex + 1;
+            activityNameEl.textContent = `Aktivitas: ${q.activity}`;
+
+            dropZones.forEach((zone, idx) => {
+                zone.innerHTML = `<span>Ke-${idx + 1}</span>`;
+                zone.dataset.filled = "";
+            });
+
+            let shuffledSteps = [...q.steps].sort(() => Math.random() - 0.5);
+
+            choicesContainer.innerHTML = "";
+            shuffledSteps.forEach(step => {
+                const item = document.createElement("div");
+                item.className = "choice-item";
+                item.draggable = true;
+                item.textContent = step;
+
+                item.addEventListener("dragstart", (e) => {
+                    e.dataTransfer.setData("text/plain", step);
+                });
+
+                choicesContainer.appendChild(item);
+            });
+        }
+
+        dropZones.forEach(zone => {
+            zone.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                zone.classList.add("drag-over");
+            });
+
+            zone.addEventListener("dragleave", () => {
+                zone.classList.remove("drag-over");
+            });
+
+            zone.addEventListener("drop", (e) => {
+                e.preventDefault();
+                zone.classList.remove("drag-over");
+                const stepText = e.dataTransfer.getData("text/plain");
+                const zoneIndex = zone.dataset.index;
+
+                userAnswers[zoneIndex] = stepText;
+                zone.textContent = stepText;
+                zone.dataset.filled = stepText;
+            });
+        });
+
+        function cekJawaban() {
+            if (userAnswers.includes(null)) {
+                alert("Semua kotak urutan harus diisi terlebih dahulu!");
+                return;
+            }
+
+            const q = questions[currentIndex];
+            let isCorrect = true;
+
+            for (let i = 0; i < q.correct.length; i++) {
+                if (userAnswers[i] !== q.correct[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            if (isCorrect) {
+                score += 10;
+                scoreEl.textContent = score;
+                alert("Yeay! Jawaban kamu benar! 🎉");
+            } else {
+                alert("Wah, urutannya masih kurang tepat. Coba lagi ya! 💪");
+            }
+
+            currentIndex++;
+            if (currentIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showFinalResult();
+            }
+        }
+
+        function showFinalResult() {
+            gameArea.classList.add("hidden");
+            resultModal.classList.remove("hidden");
+            finalScoreEl.textContent = score;
+            resultMessage.textContent = score === (questions.length * 10) ? "Hebat! Kamu jenius! 🏆" : "Permainan Selesai! Kerja bagus! 🌟";
+
+            // Bunyikan sound tepuk tangan saat soal terjawab semua / selesai
+            applauseAudio.currentTime = 0;
+            applauseAudio.play().catch(e => console.log("Audio applause diblokir browser:", e));
+        }
+
+        function mainLagi() {
+            // Hentikan tepuk tangan jika masih berbunyi saat main lagi
+            applauseAudio.pause();
+            applauseAudio.currentTime = 0;
+            initGame();
+        }
+    </script>
+</body>
+</html>
