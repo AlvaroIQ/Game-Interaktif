@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Seru: Cocokkan Warna & Gambar!</title>
-    <!-- Memuat Library Canvas Confetti untuk efek perayaan di akhir -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * {
@@ -34,10 +33,38 @@
             position: relative;
         }
 
+        /* Tombol Kembali ke Beranda */
+        .home-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background-color: #ff7675;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(255, 118, 117, 0.4);
+            transition: transform 0.2s, background 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .home-btn:hover {
+            background-color: #d63031;
+            transform: scale(1.05);
+        }
+
         h1 {
             color: #ff6b6b;
             font-size: 26px;
             margin-bottom: 5px;
+            margin-top: 15px;
             text-shadow: 2px 2px 0px #ffe66d;
         }
 
@@ -47,7 +74,6 @@
             margin-bottom: 20px;
         }
 
-        /* Overlay Tombol Play Awal */
         #start-overlay {
             position: absolute;
             top: 0;
@@ -88,7 +114,6 @@
             transform: scale(1.05);
         }
 
-        /* Area Game Play */
         .game-board {
             display: flex;
             justify-content: space-around;
@@ -110,7 +135,6 @@
             margin-bottom: 5px;
         }
 
-        /* Kotak Warna Full dengan Teks Besar yang Menyesuaikan */
         .drop-target {
             border: 4px dashed #bdc3c7;
             border-radius: 15px;
@@ -137,7 +161,6 @@
             box-shadow: 0 0 10px #2ed573;
         }
 
-        /* Gambar Buah (Drag Items) */
         .drag-item {
             background: white;
             border: 4px solid #ffa502;
@@ -179,7 +202,6 @@
             background: #f1f2f6;
         }
 
-        /* Bagian Skor & Reset */
         .score-board {
             font-size: 20px;
             font-weight: bold;
@@ -206,7 +228,6 @@
             background-color: #ff6b81;
         }
 
-        /* Popup Selesai */
         .congrats-msg {
             display: none;
             font-size: 22px;
@@ -224,12 +245,13 @@
 </head>
 <body>
 
-    <!-- Elemen Audio dengan URL Musik Latar Terbaru & Musik Selesai -->
     <audio id="bg-music" src="https://files.catbox.moe/qebg3k.mp3" preload="auto" loop></audio>
     <audio id="win-music" src="https://files.catbox.moe/wsohm6.mp3" preload="auto"></audio>
 
     <div class="game-container">
-        <!-- Overlay Tombol Play Awal -->
+        <!-- Tombol Kembali ke Beranda -->
+        <a href="index.html" class="home-btn">🏠 Beranda</a>
+
         <div id="start-overlay">
             <h2>🎨 Siap Bermain? 🍎</h2>
             <button id="play-btn" onclick="startGame()">Mulai 🚀</button>
@@ -239,13 +261,10 @@
         <p class="instruction">Tarik gambar buah di kiri ke kotak warna yang cocok di kanan ya!</p>
 
         <div class="game-board">
-            <!-- Kolom Gambar (Sumber Drag) -->
             <div class="column">
                 <div class="section-title">Gambar Buah</div>
                 <div id="items-container" class="column"></div>
             </div>
-
-            <!-- Kolom Target Warna (Drop Zone) -->
             <div class="column">
                 <div class="section-title">Kotak Warna</div>
                 <div id="targets-container" class="column"></div>
@@ -279,13 +298,9 @@
         const winMusic = document.getElementById('win-music');
 
         function startGame() {
-            // Sembunyikan layar awal
             startOverlay.style.display = 'none';
-            
-            // Putar musik latar dari awal
             bgMusic.currentTime = 0;
             bgMusic.play().catch(() => {});
-            
             initGame();
         }
 
@@ -296,7 +311,6 @@
             congratsMsg.style.display = 'none';
             resetBtn.style.display = 'none';
             
-            // Hentikan musik menang jika aktif, lalu nyalakan kembali musik latar dari awal (untuk tombol "Main Lagi")
             winMusic.pause();
             winMusic.currentTime = 0;
             bgMusic.currentTime = 0;
@@ -308,7 +322,6 @@
             let shuffledItems = [...gameData].sort(() => Math.random() - 0.5);
             let shuffledTargets = [...gameData].sort(() => Math.random() - 0.5);
 
-            // Render Buah
             shuffledItems.forEach(item => {
                 const div = document.createElement('div');
                 div.classList.add('drag-item');
@@ -318,13 +331,11 @@
                     <span class="emoji">${item.emoji}</span>
                     <span class="label">${item.name}</span>
                 `;
-                
                 div.addEventListener('dragstart', dragStart);
                 div.addEventListener('dragend', dragEnd);
                 itemsContainer.appendChild(div);
             });
 
-            // Render Kotak Warna Full
             shuffledTargets.forEach(target => {
                 const div = document.createElement('div');
                 div.classList.add('drop-target');
@@ -399,7 +410,6 @@
             congratsMsg.style.display = 'block';
             resetBtn.style.display = 'inline-block';
             
-            // Matikan musik latar, lalu putar musik menang (confetti)
             bgMusic.pause();
             winMusic.currentTime = 0;
             winMusic.play().catch(() => {});
