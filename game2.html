@@ -12,17 +12,53 @@
             text-align: center;
             padding: 20px;
             margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         .container {
             max-width: 600px;
+            width: 100%;
             margin: 0 auto;
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 20px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        /* Tombol Kembali ke Beranda */
+        .home-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background-color: #ff7675;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(255, 118, 117, 0.4);
+            transition: transform 0.2s, background 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .home-btn:hover {
+            background-color: #d63031;
+            transform: scale(1.05);
+        }
+        h2.game-main-title {
+            color: #ff6f00;
+            margin-top: 10px;
         }
         h1 {
             color: #ff6f00;
+            font-size: 24px;
         }
         .info-bar {
             display: flex;
@@ -82,7 +118,7 @@
         .choice-item:active {
             cursor: grabbing;
         }
-        button {
+        button.action-btn {
             background: #ffca28;
             border: none;
             padding: 12px 25px;
@@ -93,7 +129,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             transition: 0.2s;
         }
-        button:hover {
+        button.action-btn:hover {
             background: #ffc107;
             transform: scale(1.05);
         }
@@ -110,21 +146,21 @@
 </head>
 <body>
 
-    <!-- Audio Elemen -->
     <audio id="bg-audio" loop preload="auto" src="https://files.catbox.moe/1wbd4k.mp3"></audio>
     <audio id="applause-audio" preload="auto" src="https://files.catbox.moe/wsohm6.mp3"></audio>
 
     <div class="container">
-        <h2>🧩 Game Urutan Kegiatan 🧩</h2>
+        <!-- Tombol Kembali ke Beranda -->
+        <a href="index.html" class="home-btn">🏠 Beranda</a>
 
-        <!-- Tampilan Awal (Tombol Start) -->
+        <h2 class="game-main-title">🧩 Game Urutan Kegiatan 🧩</h2>
+
         <div id="welcome-screen" class="welcome-screen">
             <h1>⭐ Selamat Datang! ⭐</h1>
             <p>Ayo belajar menyusun urutan kegiatan dengan seru dan menyenangkan.</p>
-            <button onclick="mulaiPermainan()">Mulai Game 🚀</button>
+            <button class="action-btn" onclick="mulaiPermainan()">Mulai Game 🚀</button>
         </div>
 
-        <!-- Area Game Utama -->
         <div id="main-game-area" class="hidden">
             <h1>⭐ Susun Urutan Kegiatan ⭐</h1>
             <p>Seret langkah kegiatan ke kotak nomor 1, 2, dan 3 sesuai urutan yang benar!</p>
@@ -146,13 +182,13 @@
                 <p>Pilihan Langkah Kegiatan:</p>
                 <div class="choices-container" id="choices"></div>
 
-                <button id="submit-btn" onclick="cekJawaban()">Periksa Jawaban</button>
+                <button class="action-btn" id="submit-btn" onclick="cekJawaban()">Periksa Jawaban</button>
             </div>
 
             <div id="result-modal" class="hidden">
                 <h2 id="result-message"></h2>
                 <p>Skor Akhir Kamu: <span id="final-score">0</span></p>
-                <button onclick="mainLagi()">Main Lagi 🚀</button>
+                <button class="action-btn" onclick="mainLagi()">Main Lagi 🚀</button>
             </div>
         </div>
     </div>
@@ -200,14 +236,10 @@
         totalQEl.textContent = questions.length;
 
         function mulaiPermainan() {
-            // Sembunyikan layar awal, tampilkan area game
             welcomeScreen.classList.add("hidden");
             mainGameArea.classList.remove("hidden");
-
-            // Putar musik background
             bgAudio.currentTime = 0;
-            bgAudio.play().catch(e => console.log("Audio autoplay diblokir browser:", e));
-
+            bgAudio.play().catch(e => console.log(e));
             initGame();
         }
 
@@ -311,13 +343,11 @@
             finalScoreEl.textContent = score;
             resultMessage.textContent = score === (questions.length * 10) ? "Hebat! Kamu jenius! 🏆" : "Permainan Selesai! Kerja bagus! 🌟";
 
-            // Bunyikan sound tepuk tangan saat soal terjawab semua / selesai
             applauseAudio.currentTime = 0;
-            applauseAudio.play().catch(e => console.log("Audio applause diblokir browser:", e));
+            applauseAudio.play().catch(e => console.log(e));
         }
 
         function mainLagi() {
-            // Hentikan tepuk tangan jika masih berbunyi saat main lagi
             applauseAudio.pause();
             applauseAudio.currentTime = 0;
             initGame();
