@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Menyusun Bentuk</title>
-    <!-- Memuat Library Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * {
@@ -37,10 +36,37 @@
             position: relative;
         }
 
+        /* Tombol Kembali ke Beranda */
+        .home-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background-color: #ff7675;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(255, 118, 117, 0.4);
+            transition: transform 0.2s, background 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .home-btn:hover {
+            background-color: #d63031;
+            transform: scale(1.05);
+        }
+
         h1 {
             color: #d63031;
             font-size: 24px;
-            margin: 0 0 5px 0;
+            margin: 10px 0 5px 0;
             text-shadow: 2px 2px 0px #ffeaa7;
         }
 
@@ -50,7 +76,6 @@
             margin-bottom: 10px;
         }
 
-        /* Overlay Tombol Play Awal */
         #start-overlay {
             position: absolute;
             top: 0;
@@ -92,7 +117,6 @@
             transform: scale(1.05);
         }
 
-        /* Status & Level Info */
         .game-info {
             display: flex;
             justify-content: space-between;
@@ -103,7 +127,6 @@
             padding: 0 5px;
         }
 
-        /* Area Canvas Objek Kosong di Tengah */
         .canvas-area {
             position: relative;
             width: 100%;
@@ -114,7 +137,6 @@
             margin: 0 auto 15px auto;
         }
 
-        /* Target Slot Kosong */
         .drop-slot {
             position: absolute;
             border: 3px dashed #636e72;
@@ -130,7 +152,6 @@
             background: rgba(0, 184, 148, 0.15);
         }
 
-        /* Pilihan Bentuk di Bawah */
         .toolbox-title {
             font-size: 15px;
             font-weight: bold;
@@ -191,12 +212,13 @@
 </head>
 <body>
 
-    <!-- Musik Latar & Musik Tepuk Tangan -->
     <audio id="bg-music" src="https://files.catbox.moe/1at55n.mp3" preload="auto" loop></audio>
     <audio id="win-music" src="https://files.catbox.moe/wsohm6.mp3" preload="auto"></audio>
 
     <div class="game-container">
-        <!-- Overlay Tombol Play Awal -->
+        <!-- Tombol Kembali ke Beranda -->
+        <a href="index.html" class="home-btn">🏠 Beranda</a>
+
         <div id="start-overlay">
             <h2>🧩 Game Menyusun Bentuk (Tangram) 🧩</h2>
             <button id="play-btn" onclick="startGame()">Mulai Main 🚀</button>
@@ -212,22 +234,15 @@
 
         <div id="feedback-text"></div>
 
-        <!-- Area Objek Kosong di Tengah -->
-        <div class="canvas-area" id="canvas-area">
-            <!-- Slot bayangan & bentuk masuk otomatis via JS -->
-        </div>
+        <div class="canvas-area" id="canvas-area"></div>
 
         <div class="toolbox-title">Pilihan Bentuk:</div>
-        <!-- Kotak Pilihan Bentuk di Bawah -->
-        <div class="toolbox" id="toolbox">
-            <!-- Bentuk acak via JS -->
-        </div>
+        <div class="toolbox" id="toolbox"></div>
 
         <button id="next-btn" onclick="nextLevel()">Objek Berikutnya ➡️</button>
     </div>
 
     <script>
-        // Data 5 Objek Diperbarui Sesuai Permintaan
         const objectsList = [
             {
                 name: "Rumah",
@@ -294,12 +309,10 @@
             startOverlay.style.display = 'none';
             bgMusic.currentTime = 0;
             bgMusic.play().catch(() => {});
-            
             shuffledObjects = [...objectsList].sort(() => Math.random() - 0.5);
             currentLevelIndex = 0;
             score = 0;
             scoreDisplay.textContent = score;
-
             loadLevel();
         }
 
@@ -314,7 +327,6 @@
             const currentObj = shuffledObjects[currentLevelIndex];
             totalSlotsInLevel = currentObj.slots.length;
 
-            // 1. Render Slot Kosong di Tengah
             currentObj.slots.forEach(slot => {
                 const slotDiv = document.createElement('div');
                 slotDiv.classList.add('drop-slot');
@@ -323,12 +335,10 @@
                 slotDiv.style.height = slot.height + 'px';
                 slotDiv.style.left = slot.left + 'px';
                 slotDiv.style.top = slot.top + 'px';
-                
                 applyShapeStyle(slotDiv, slot.type);
                 canvasArea.appendChild(slotDiv);
             });
 
-            // 2. Buat Pilihan Bentuk di Bawah
             let shuffledSlots = [...currentObj.slots].sort(() => Math.random() - 0.5);
 
             shuffledSlots.forEach(slot => {
@@ -338,14 +348,12 @@
                 item.style.width = slot.width + 'px';
                 item.style.height = slot.height + 'px';
                 item.style.background = getRandomColor();
-                
                 applyShapeStyle(item, slot.type);
                 initDragAndDrop(item, slot.id);
                 toolbox.appendChild(item);
             });
         }
 
-        // Fungsi pembantu untuk mengatur bentuk CSS geometris secara akurat
         function applyShapeStyle(element, type) {
             if (type === 'triangle' || type === 'triangle-up') {
                 element.style.clipPath = 'polygon(50% 0%, 0% 100%, 100% 100%)';
@@ -371,7 +379,6 @@
             return colors[Math.floor(Math.random() * colors.length)];
         }
 
-        // Interaksi Drag & Drop dengan Posisi Presisi & Magnet Luas
         function initDragAndDrop(item, targetId) {
             let isDragging = false;
             let shiftX = 0, shiftY = 0;
@@ -379,10 +386,8 @@
             function dragStart(e) {
                 if (item.classList.contains('placed')) return;
                 isDragging = true;
-
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
                 const rect = item.getBoundingClientRect();
                 shiftX = clientX - rect.left;
                 shiftY = clientY - rect.top;
@@ -406,10 +411,8 @@
                 if (!isDragging) return;
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
                 item.style.left = (clientX - shiftX) + 'px';
                 item.style.top = (clientY - shiftY) + 'px';
-
                 if(e.cancelable) e.preventDefault();
             }
 
